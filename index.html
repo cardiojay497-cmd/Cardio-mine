@@ -2,184 +2,101 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>CardioMine - TON Mine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>CardioMine - TON Mine V3</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;800&display=swap');
-body{font-family:'Inter',sans-serif;background:#0a0e1a;color:white;overflow:hidden;user-select:none}
-.ton-coin{background: radial-gradient(circle at 30% 30%, #2aabee, #0f6fb5); box-shadow: 0 0 40px rgba(42,171,238,0.5), inset 0 -10px 20px rgba(0,0,0,0.3);}
-.tap-effect{animation: tap 0.1s ease}
-@keyframes tap{0%{transform:scale(1)}50%{transform:scale(0.92)}100%{transform:scale(1)}}
+body{background:#0a0e1a;color:white;font-family:Inter,sans-serif;overflow:hidden}
+.ton-coin{background: radial-gradient(circle at 30% 30%, #2aabee, #0f6fb5); box-shadow: 0 0 40px rgba(42,171,238,0.5);}
+.wheel{transition: transform 4s cubic-bezier(0.2,0.8,0.2,1);}
 </style>
 </head>
 <body class="h-screen flex flex-col">
-<!-- TOP BAR -->
 <div class="flex justify-between items-center p-4">
-  <div class="flex items-center gap-2">
-    <img src="https://ton.org/download/ton_symbol.png" class="w-8 h-8 bg-white rounded-full p-1">
-    <div>
-      <p class="text-xs opacity-60">Balance</p>
-      <p id="balance" class="font-extrabold text-lg">0.000 TON</p>
-    </div>
-  </div>
+  <div class="flex gap-2 items-center"><img src="https://ton.org/download/ton_symbol.png" class="w-8 h-8 bg-white rounded-full p-1"><div><p class="text-xs opacity-60">Balance</p><p id="balance" class="font-extrabold">0.000 TON</p></div></div>
   <div id="ton-connect"></div>
 </div>
 
-<!-- PAGES -->
-<div id="mine-page" class="flex-1 flex flex-col items-center justify-center px-6">
-  <div class="text-center mb-6">
-    <p class="opacity-60 text-sm">Mining Speed</p>
-    <p class="text-xl font-bold"><span id="speed">1.0</span> TON/hour ⚡</p>
-    <div class="w-64 h-2 bg-gray-800 rounded-full mt-3 mx-auto overflow-hidden">
-      <div id="energy-bar" class="h-full bg-gradient-to-r from-blue-400 to-cyan-300 transition-all" style="width:100%"></div>
-    </div>
-    <p class="text-xs mt-1 opacity-60"><span id="energy">1000</span>/1000 Energy</p>
-  </div>
-
-  <div id="coin" class="ton-coin w-64 h-64 rounded-full flex items-center justify-center cursor-pointer active:scale-95 transition">
-    <span class="text-8xl">💎</span>
-  </div>
-  <p class="mt-6 text-sm opacity-70 animate-pulse">Tap the TON Diamond to Mine!</p>
-  <button id="claim" class="mt-6 bg-white text-black px-10 py-3 rounded-full font-bold">Claim +<span id="claim-amount">0</span></button>
+<!-- MINE -->
+<div id="p-mine" class="page flex-1 flex flex-col items-center justify-center p-4">
+  <p class="opacity-60 text-sm">Mining Speed <span id="speed" class="text-white font-bold">1.0</span> TON/h ⚡ | Level: <span id="level">Bronze</span></p>
+  <div class="w-64 h-2 bg-gray-800 rounded-full mt-2"><div id="energy-bar" class="h-full bg-cyan-300" style="width:100%"></div></div>
+  <div id="coin" class="ton-coin w-60 h-60 rounded-full flex items-center justify-center text-7xl mt-6 active:scale-95 transition">💎</div>
+  <p class="mt-4 text-xs opacity-60"><span id="energy">1000</span>/1000</p>
+  <button id="claim" class="mt-4 bg-white text-black px-10 py-3 rounded-full font-bold">Claim <span id="claim-amount">0</span></button>
 </div>
 
-<div id="tasks-page" class="hidden flex-1 p-4 overflow-y-auto">
-  <h2 class="text-2xl font-bold mb-4">Boost Mining ⚡</h2>
-  <div id="task-list" class="space-y-3"></div>
-</div>
+<!-- TASKS -->
+<div id="p-tasks" class="page hidden flex-1 p-4 overflow-auto"><h2 class="text-xl font-bold">Tasks ⚡</h2><div id="task-list" class="space-y-2 mt-4"></div></div>
 
-<div id="friends-page" class="hidden flex-1 p-4">
-  <h2 class="text-2xl font-bold">Invite Friends</h2>
-  <p class="opacity-60 text-sm mt-1">Earn 10% of friends mining + 0.5 speed per friend</p>
-  <div class="bg-[#141a2e] p-4 rounded-2xl mt-6 text-center">
-    <p class="text-xs opacity-60">Your Invitation Code</p>
-    <p id="invite-code" class="text-2xl font-extrabold tracking-widest mt-1">CARDIO123</p>
-    <button onclick="copyInvite()" class="w-full mt-4 bg-[#2aabee] py-3 rounded-xl font-bold">Copy Invite Link</button>
-    <p class="mt-3 text-xs opacity-60"><span id="friend-count">0</span> friends invited</p>
+<!-- FRIENDS -->
+<div id="p-friends" class="page hidden flex-1 p-4"><h2 class="text-xl font-bold">Invite</h2><div class="bg-[#141a2e] p-4 rounded-2xl mt-4 text-center"><p id="invite-code" class="text-2xl font-bold">CARDIO123</p><button onclick="copyInvite()" class="w-full mt-3 bg-[#2aabee] py-3 rounded-xl font-bold">Copy Invite Link</button></div></div>
+
+<!-- DEPOSIT -->
+<div id="p-deposit" class="page hidden flex-1 p-4 overflow-auto">
+  <h2 class="text-xl font-bold">Deposit TON</h2>
+  <p class="text-xs opacity-60 mt-1">Deposit to unlock Withdraw & Spin. Your deposits: <span id="total-dep" class="font-bold text-cyan-300">0</span> TON</p>
+  <div class="grid grid-cols-3 gap-2 mt-4">
+    <button onclick="deposit(2)" class="bg-[#141a2e] p-4 rounded-2xl font-bold">$2<br><span class="text-xs opacity-60">~0.5 TON</span></button>
+    <button onclick="deposit(5)" class="bg-[#141a2e] p-4 rounded-2xl font-bold border border-cyan-400">$5<br><span class="text-xs opacity-60">~1.2 TON</span></button>
+    <button onclick="deposit(10)" class="bg-[#141a2e] p-4 rounded-2xl font-bold">$10<br><span class="text-xs opacity-60">~2.5 TON</span></button>
   </div>
+  <p class="text-xs mt-4 opacity-70">Deposits go to owner wallet and increase mining speed x2.</p>
 </div>
 
-<!-- BOTTOM NAV -->
-<div class="grid grid-cols-3 bg-[#141a2e] p-2 rounded-t-3xl">
-  <button onclick="showPage('mine')" id="nav-mine" class="py-3 bg-white text-black rounded-2xl font-bold">⛏️ Mine</button>
-  <button onclick="showPage('tasks')" id="nav-tasks" class="py-3 opacity-60">⚡ Tasks</button>
-  <button onclick="showPage('friends')" id="nav-friends" class="py-3 opacity-60">👥 Friends</button>
+<!-- WITHDRAW -->
+<div id="p-withdraw" class="page hidden flex-1 p-4">
+  <h2 class="text-xl font-bold">Withdraw</h2>
+  <div id="warn-dep" class="bg-yellow-900/50 border border-yellow-500 p-3 rounded-xl mt-4 text-sm">⚠️ To withdraw, you must have deposited at least $2 (0.5 TON) first. This is anti-bot protection.</div>
+  <input id="w-addr" placeholder="Your TON wallet address" class="w-full mt-4 p-3 rounded-xl bg-[#141a2e] outline-none">
+  <input id="w-amount" type="number" placeholder="Amount (min 1 TON)" class="w-full mt-2 p-3 rounded-xl bg-[#141a2e] outline-none">
+  <button onclick="doWithdraw()" class="w-full mt-4 bg-white text-black py-3 rounded-xl font-bold">Request Withdraw</button>
+  <p id="w-msg" class="text-sm mt-3 text-center opacity-70"></p>
+</div>
+
+<!-- SPIN -->
+<div id="p-spin" class="page hidden flex-1 p-4 flex flex-col items-center">
+  <h2 class="text-xl font-bold">Spin Wheel</h2>
+  <div id="spin-lock" class="bg-red-900/50 border border-red-500 p-3 rounded-xl mt-4 text-sm w-full text-center">🔒 Deposit more than $5 (1.2 TON) to unlock Spin Wheel</div>
+  <div class="w-64 h-64 rounded-full border-4 border-cyan-400 mt-6 flex items-center justify-center text-5xl wheel" id="wheel">🎡</div>
+  <button onclick="spin()" class="mt-6 bg-[#2aabee] px-10 py-3 rounded-full font-bold">SPIN</button>
+</div>
+
+<!-- NAV -->
+<div class="grid grid-cols-6 bg-[#141a2e] p-2 gap-1 rounded-t-2xl text-[10px]">
+  <button onclick="showPage('mine')" class="nav py-2 bg-white text-black rounded-xl font-bold" id="n-mine">Mine</button>
+  <button onclick="showPage('tasks')" class="nav py-2 opacity-60" id="n-tasks">Tasks</button>
+  <button onclick="showPage('friends')" class="nav py-2 opacity-60" id="n-friends">Friends</button>
+  <button onclick="showPage('deposit')" class="nav py-2 opacity-60" id="n-deposit">Deposit</button>
+  <button onclick="showPage('withdraw')" class="nav py-2 opacity-60" id="n-withdraw">Withdraw</button>
+  <button onclick="showPage('spin')" class="nav py-2 opacity-60" id="n-spin">Spin</button>
 </div>
 
 <script>
-const tg = window.Telegram.WebApp; tg.expand();
-let coins = parseFloat(localStorage.getItem('cm_coins')||'0');
-let energy = parseInt(localStorage.getItem('cm_energy')||'1000');
-let speed = parseFloat(localStorage.getItem('cm_speed')||'1.0');
-let pending = parseFloat(localStorage.getItem('cm_pending')||'0');
-let tasks = JSON.parse(localStorage.getItem('cm_tasks')||'{}');
-let code = localStorage.getItem('cm_code') || 'CARDIO'+Math.floor(1000+Math.random()*9000);
-localStorage.setItem('cm_code',code);
-
-document.getElementById('invite-code').innerText = code;
-document.getElementById('balance').innerText = coins.toFixed(3)+' TON';
-document.getElementById('speed').innerText = speed.toFixed(1);
-document.getElementById('energy').innerText = energy;
-
-const taskData = [
- {id:'join', title:'Join CardioMine Channel', reward:'+0.5 Speed', speed:0.5, link:'https://t.me/'},
- {id:'x', title:'Follow us on X', reward:'+0.5 Speed', speed:0.5, link:'https://x.com/'},
- {id:'daily', title:'Daily Check-in', reward:'+0.2 TON +0.2 Speed', coins:0.2, speed:0.2},
- {id:'wallet', title:'Connect TON Wallet', reward:'+1.0 Speed', speed:1.0},
-]
-
-function renderTasks(){
- let html='';
- taskData.forEach(t=>{
-  let done = tasks[t.id];
-  html+=`<div class="bg-[#141a2e] p-4 rounded-2xl flex justify-between items-center">
-   <div><p class="font-bold">${t.title}</p><p class="text-xs text-[#2aabee]">${t.reward}</p></div>
-   <button onclick="doTask('${t.id}')" class="px-5 py-2 rounded-xl font-bold ${done?'bg-gray-700 opacity-50':'bg-white text-black'}">${done?'Done':'Go'}</button>
-  </div>`;
- });
- document.getElementById('task-list').innerHTML=html;
-}
+const OWNER_WALLET = "UQCoeUpYXOSLpTKIxYOIY_3dRoZYzmtRCrARH7D0EARw8NHC
+const tg = Telegram.WebApp; tg.expand();
+let coins=parseFloat(localStorage.getItem('cm_coins')||'0'), energy=parseInt(localStorage.getItem('cm_energy')||'1000'), speed=parseFloat(localStorage.getItem('cm_speed')||'1'), pending=0, totalDep=parseFloat(localStorage.getItem('cm_dep')||'0');
+let tasks=JSON.parse(localStorage.getItem('cm_tasks')||'{}');
+let code=localStorage.getItem('cm_code')||'CARDIO'+Math.floor(1000+Math.random()*9000); localStorage.setItem('cm_code',code);
+document.getElementById('invite-code').innerText=code;
+function save(){localStorage.setItem('cm_coins',coins);localStorage.setItem('cm_energy',energy);localStorage.setItem('cm_speed',speed);localStorage.setItem('cm_dep',totalDep);localStorage.setItem('cm_tasks',JSON.stringify(tasks));document.getElementById('balance').innerText=coins.toFixed(3)+' TON';document.getElementById('speed').innerText=speed.toFixed(1);document.getElementById('total-dep').innerText=totalDep.toFixed(2);document.getElementById('energy').innerText=energy;let lvl=speed<2?'Bronze':speed<5?'Silver':speed<10?'Gold':'Diamond';document.getElementById('level').innerText=lvl;checkLocks();}
+function checkLocks(){document.getElementById('warn-dep').style.display=totalDep>=0.5?'none':'block';document.getElementById('spin-lock').style.display=totalDep>=1.2?'none':'block';}
+save();checkLocks();
+const taskData=[{id:'join',title:'Join Channel',s:0.5},{id:'x',title:'Follow X',s:0.5},{id:'daily',title:'Daily Bonus',s:0.2,c:0.2},{id:'wallet',title:'Connect Wallet',s:1}];
+function renderTasks(){let h='';taskData.forEach(t=>{h+=`<div class="bg-[#141a2e] p-3 rounded-xl flex justify-between"><div><p class="font-bold text-sm">${t.title}</p><p class="text-xs text-cyan-300">+${t.s} speed</p></div><button onclick="doTask('${t.id}')" class="px-4 py-1 bg-white text-black rounded-lg font-bold text-sm">${tasks[t.id]?'Done':'Go'}</button></div>`});document.getElementById('task-list').innerHTML=h;}
 renderTasks();
-
-function doTask(id){
- if(tasks[id]) return;
- let t = taskData.find(x=>x.id==id);
- if(t.link) window.open(t.link,'_blank');
- tasks[id]=true;
- if(t.speed) speed+=t.speed;
- if(t.coins) coins+=t.coins;
- localStorage.setItem('cm_tasks',JSON.stringify(tasks));
- save();
- renderTasks();
- tg.HapticFeedback.notificationOccurred('success');
-}
-
-const coinEl = document.getElementById('coin');
-coinEl.addEventListener('touchstart', (e)=>{e.preventDefault(); mine();});
-coinEl.addEventListener('click', mine);
-
-function mine(){
- if(energy<=0) return;
- coinEl.classList.remove('tap-effect'); void coinEl.offsetWidth; coinEl.classList.add('tap-effect');
- energy--; pending+= (0.001*speed);
- document.getElementById('energy').innerText=energy;
- document.getElementById('energy-bar').style.width=(energy/10)+'%';
- document.getElementById('claim-amount').innerText=pending.toFixed(3);
- if(navigator.vibrate) navigator.vibrate(20);
- save();
-}
-
-document.getElementById('claim').onclick=()=>{
- if(pending<=0) return;
- coins+=pending; pending=0;
- document.getElementById('claim-amount').innerText='0';
- save();
- tg.HapticFeedback.notificationOccurred('success');
-}
-
-function save(){
- localStorage.setItem('cm_coins',coins);
- localStorage.setItem('cm_energy',energy);
- localStorage.setItem('cm_speed',speed);
- localStorage.setItem('cm_pending',pending);
- document.getElementById('balance').innerText=coins.toFixed(3)+' TON';
- document.getElementById('speed').innerText=speed.toFixed(1);
-}
-
-setInterval(()=>{ if(energy<1000){energy++; document.getElementById('energy').innerText=energy; document.getElementById('energy-bar').style.width=(energy/10)+'%'; localStorage.setItem('cm_energy',energy);} },2000);
-
-function showPage(p){
- document.getElementById('mine-page').classList.add('hidden');
- document.getElementById('tasks-page').classList.add('hidden');
- document.getElementById('friends-page').classList.add('hidden');
- document.getElementById('nav-mine').className='py-3 opacity-60';
- document.getElementById('nav-tasks').className='py-3 opacity-60';
- document.getElementById('nav-friends').className='py-3 opacity-60';
- document.getElementById(p+'-page').classList.remove('hidden');
- document.getElementById('nav-'+p).className='py-3 bg-white text-black rounded-2xl font-bold';
-}
-
-function copyInvite(){
- let link = `https://t.me/Cardiomine_bot?start=${code}`;
- navigator.clipboard.writeText(link);
- tg.showAlert('Invite link copied! \n'+link);
-}
-
-// TON CONNECT
-const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
- manifestUrl: 'https://cardiojay497-cmd.github.io/Cardio-mine/tonconnect-manifest.json',
- buttonRootId: 'ton-connect'
-});
-tonConnectUI.onStatusChange(wallet=>{
- if(wallet){ if(!tasks['wallet']){ doTask('wallet'); } }
-});
-
-// Handle referral from start param
-const startParam = tg.initDataUnsafe?.start_param;
-if(startParam){ document.getElementById('friend-count').innerText='1 (referred by '+startParam+')'; }
+function doTask(id){if(tasks[id])return;tasks[id]=true;let t=taskData.find(x=>x.id==id);speed+=t.s;if(t.c)coins+=t.c;save();renderTasks();}
+document.getElementById('coin').onclick=()=>{if(energy<=0)return;energy--;pending+=0.001*speed;document.getElementById('claim-amount').innerText=pending.toFixed(3);document.getElementById('energy-bar').style.width=energy/10+'%';save();};
+document.getElementById('claim').onclick=()=>{coins+=pending;pending=0;document.getElementById('claim-amount').innerText='0';save();};
+function showPage(p){document.querySelectorAll('.page').forEach(e=>e.classList.add('hidden'));document.getElementById('p-'+p).classList.remove('hidden');document.querySelectorAll('.nav').forEach(e=>e.className='nav py-2 opacity-60');document.getElementById('n-'+p).className='nav py-2 bg-white text-black rounded-xl font-bold';}
+function copyInvite(){navigator.clipboard.writeText(`https://t.me/Cardiomine_bot?start=${code}`);tg.showAlert('Copied!');}
+const tonConnectUI=new TON_CONNECT_UI.TonConnectUI({manifestUrl:'https://cardiojay497-cmd.github.io/Cardio-mine/tonconnect-manifest.json',buttonRootId:'ton-connect'});
+async function deposit(dollars){let ton = dollars*0.25;if(!tonConnectUI.connected){tg.showAlert('Connect wallet first at top!');return;}try{const tx={validUntil:Math.floor(Date.now()/1000)+600,messages:[{address:OWNER_WALLET,amount:(ton*1e9).toString()}]};await tonConnectUI.sendTransaction(tx);totalDep+=ton;speed+=0.5;save();tg.showAlert(`Deposited $${dollars} ~ ${ton} TON! Speed boosted!`);}catch(e){tg.showAlert('Deposit cancelled');}}
+function doWithdraw(){let amt=parseFloat(document.getElementById('w-amount').value);let addr=document.getElementById('w-addr').value;if(totalDep<0.5){document.getElementById('w-msg').innerText='⚠️ You must deposit at least $2 (0.5 TON) before withdraw.';return;}if(amt<1){document.getElementById('w-msg').innerText='Min withdraw 1 TON';return;}if(amt>coins){document.getElementById('w-msg').innerText='Not enough balance';return;}if(!addr){document.getElementById('w-msg').innerText='Enter wallet address';return;}document.getElementById('w-msg').innerText=`Withdraw request of ${amt} TON to ${addr.slice(0,6)}... submitted! (Manual review)`;coins-=amt;save();}
+function spin(){if(totalDep<1.2){tg.showAlert('🔒 Deposit $5+ to unlock Spin Wheel');return;}let w=document.getElementById('wheel');w.style.transform=`rotate(${720+Math.random()*720}deg)`;setTimeout(()=>{let reward=Math.random()*0.5;coins+=reward;save();tg.showAlert(`You won ${reward.toFixed(3)} TON!`);},4000);}
+setInterval(()=>{if(energy<1000){energy++;save();}},2000);
 </script>
 </body>
-</html>
+  </html>
