@@ -1,6 +1,7 @@
    <!DOCTYPE html>
 <html lang="en">
 <head>
+   <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>CardioMine - TON Wallet V3.2</title>
@@ -103,6 +104,15 @@ window.doWithdraw=function(){let amt=parseFloat(document.getElementById('w-amoun
 window.spin=function(){if(totalDep<1.2){tg.showAlert('🔒 Deposit $5+ to unlock');return;}let w=document.getElementById('wheel');w.style.transform=`rotate(${720+Math.random()*720}deg)`;setTimeout(()=>{let r=Math.random()*0.5;coins+=r;save();tg.showAlert(`Won ${r.toFixed(3)} TON!`);},4000);}
 setInterval(()=>{if(energy<1000){energy++;save();}},1500);
 showPage('mine');
+</script>
+
+<script>
+  const AdController = window.Adsgram.init({ blockId: "47932" });
+  function watchAd(){
+    AdController.show().then((r)=>{
+      if(r.done){ alert("You earned +10 TON!"); }
+    });
+  }
 </script>
 </body>
 </html>   
