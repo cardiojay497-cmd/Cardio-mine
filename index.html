@@ -66,7 +66,23 @@ updateUI();
 }
 
 function watchAd(){
-AdController.show().then((result)=>{
+  AdController.show().then((result)=>{
+    console.log(result);
+    balance += 0.5;
+    ads++;
+    if(ads>20) ads=20;
+    updateUI();
+    alert("You earned +0.5 TON!");
+  }).catch((e)=>{
+    console.log(e);
+    // Still give reward if no ad available
+    balance += 0.5;
+    ads++;
+    if(ads>20) ads=20;
+    updateUI();
+    alert("You earned +0.5 TON! (ad was not available but you got reward)");
+  });
+  }
 if(result.done){
 balance += 0.5;
 ads++;
