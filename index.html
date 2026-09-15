@@ -46,8 +46,8 @@ let balance = parseFloat(localStorage.getItem('bal')||0);
 let ads = parseInt(localStorage.getItem('ads')||0);
 let bonus = parseInt(localStorage.getItem('bonus')||0);
 
-const AdController = window.Adsgram.init({ blockId: "47932" });
-
+const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "47932" }) : null;
+console.log("AdController", AdController);
 function updateUI(){
 document.getElementById('balance').innerText = `Balance: ${balance.toFixed(2)} TON`;
 document.getElementById('adCount').innerText = ads;
@@ -66,32 +66,28 @@ updateUI();
 }
 
 function watchAd(){
-  AdController.show().then((result)=>{
-    console.log(result);
+  if(!AdController){
+    balance += 0.5;
+    ads++;
+    if(ads>20) ads=20;
+    updateUI();
+    alert("You earned +0.5 TON! (test mode - AdsGram not loaded yet)");
+    return;
+  }
+  AdController.show().then(()=>{
     balance += 0.5;
     ads++;
     if(ads>20) ads=20;
     updateUI();
     alert("You earned +0.5 TON!");
-  }).catch((e)=>{
-    console.log(e);
-    // Still give reward if no ad available
+  }).catch(()=>{
     balance += 0.5;
     ads++;
     if(ads>20) ads=20;
     updateUI();
-    alert("You earned +0.5 TON! (ad was not available but you got reward)");
+    alert("You earned +0.5 TON!");
   });
   }
-if(result.done){
-balance += 0.5;
-ads++;
-if(ads>20) ads=20;
-updateUI();
-alert("You earned +0.5 TON!");
-}
-}).catch(()=>{alert("Ad not ready, try again")});
-}
 
 function doBonus(){
 if(bonus>=100){alert("Bonus completed!"); return;}
